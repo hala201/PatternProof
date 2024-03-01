@@ -1,8 +1,10 @@
 # Check-in 1:
 ## 1. First Idea: Memory visualization
 Memory visualization for C program (valgrind visualized, mainly dynamic check)
-Saving a visualization for whenever sth is allocated (keeping history)
-Saving more than what is obvious (NOT only saving that memory is allocated)
+- Saving a visualization for whenever sth is allocated (keeping history)
+- Saving more than what is obvious (NOT only saving that memory is allocated)
+- Analysis on desginated chunk of codes to visualize the memory (control flow)
+- Support for multiple views including chronological, hierarchical, and statistical representations of memory usage.
 
 ## 2. Second Idea: Design Pattern Miner
 ### Use cases:
