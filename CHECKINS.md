@@ -82,7 +82,47 @@ These patterns were selected for their relevance in structuring complex interact
 
 This list is likely to expand as we progress and finalize the program design.
 
-### Visitor
+## Chain of Responsibility
+
+### Task 1: Analysis of Handler Structure
+#### Goal:
+To analyze the structure of handlers within the Chain of Responsibility pattern, identifying the sequence of handlers and their interactions in processing requests.
+
+#### Abstract States σ:
+A mapping from each request type to the sequence of handlers responsible for processing the request, including any branching or termination conditions within the chain.
+
+#### Error/Output Information E:
+A summary of the chain of responsibility for each request type, highlighting any gaps in handler coverage, redundant handlers, or potential bottlenecks in request processing.
+
+#### Analysis Function:
+analyse(σ, s) takes the current abstract state σ and a program statement s (including handler registrations, request processing logic, etc.). It updates σ based on the control flow implications of s for request handling, including the addition or removal of handlers, changes in the processing sequence, and any conditional branching based on request types.
+
+#### Concretisation Function:
+Maps the abstract states to concrete sequences of handlers within the program's request processing flow. This includes detailing which handlers are responsible for processing which types of requests, in what order, and under what conditions (e.g., based on request properties or the presence of other handlers in the chain).
+
+#### Termination Strategy:
+Implement a fixpoint analysis where the analysis iterates until no new information is discovered in σ. This involves identifying when the addition of new handlers or changes in the processing logic do not change the overall understanding of the handler chain for each request type, indicating a stable state.
+
+### Task 2: Identification of Request Propagation
+#### Goal:
+To identify instances where a request propagates through the chain of handlers, ensuring that each handler correctly forwards the request to the next handler in the sequence.
+
+#### Abstract States σ:
+A mapping from each request type to the sequence of handlers responsible for processing the request, including information about how the request is propagated (e.g., by invoking a method on the next handler in the chain).
+
+#### Error/Output Information E:
+Identification of instances where requests are not correctly propagated through the chain, such as handlers failing to pass the request to the next handler, or handlers incorrectly processing requests intended for other handlers.
+
+#### Analysis Function:
+analyse(σ, s) examines interactions between handlers and requests within the code. When a handler processes a request, the function checks whether the request is correctly forwarded to the next handler in the sequence. The state σ is updated to reflect these interactions, marking instances where request propagation is incorrect or missing.
+
+#### Concretisation Function:
+Maps abstract states σ to concrete instances of request propagation within the handler chain, showing how different types of requests are processed and forwarded through the chain of handlers.
+
+#### Termination Strategy:
+Similar to Task 1, a fixpoint analysis is used to identify when the request propagation logic has stabilized, indicating that all requests are correctly processed and forwarded through the chain.
+
+## Visitor
 
 ### Task 1: Analysis of Control Flow
 
@@ -137,6 +177,46 @@ Maps abstract states σ to concrete instances of double dispatch interactions, s
 #### Termination Strategy:
 
 Given the complexity of tracking double dispatch across potentially recursive visitor patterns or nested element structures, a termination strategy such as limiting the depth of call analysis or employing a heuristic to detect and avoid infinite recursion might be necessary.
+
+## Observer
+
+### Task 1: Analysis of Subject-Observable Relationship
+#### Goal:
+To analyze the relationship between subjects and observers in the Observer Pattern, identifying how state changes in subjects are communicated to observers.
+
+#### Abstract States σ:
+A mapping from each subject to the set of observers registered with that subject, along with the state of each observer (e.g., active, inactive, notified).
+
+#### Error/Output Information E:
+A summary of the subject-observer relationships, highlighting any inconsistencies or inefficiencies in the notification process, such as observers not being notified of state changes, observers being notified multiple times unnecessarily, or potential for optimization in the notification mechanism.
+
+#### Analysis Function:
+analyse(σ, s) takes the current abstract state σ and a program statement s (including observer registrations, state change notifications, etc.). It updates σ based on the control flow implications of s for observer notification, including the addition or removal of observers, changes in the notification sequence, and any conditional logic for notifying observers.
+
+#### Concretisation Function:
+Maps the abstract states to concrete relationships between subjects and observers within the program's state management flow. This includes detailing which observers are registered with which subjects, how observers are notified of state changes, and under what conditions (e.g., based on specific events or changes in subject state).
+
+#### Termination Strategy:
+Implement a fixpoint analysis where the analysis iterates until no new information is discovered in σ. This involves identifying when the addition of new observers or changes in the notification logic do not change the overall understanding of the subject-observer relationships, indicating a stable state.
+
+### Task 2: Detection of Notification Dependencies
+#### Goal:
+To identify instances where observers depend on the notification order or timing, ensuring that observers are notified in a way that respects their dependencies.
+
+#### Abstract States σ:
+A mapping from each observer to the set of observers that it depends on, along with any constraints on the order or timing of notifications.
+
+#### Error/Output Information E:
+Identification of instances where notification dependencies are not correctly handled, such as observers not being notified in the correct order, observers being notified prematurely, or observers not being notified at all due to incorrect dependencies.
+
+#### Analysis Function:
+analyse(σ, s) examines interactions between observers within the code. When an observer is notified of a state change, the function checks whether the notification respects the dependencies of other observers. The state σ is updated to reflect these interactions, marking instances where notification dependencies are violated.
+
+#### Concretisation Function:
+Maps abstract states σ to concrete instances of notification dependencies between observers, showing how different observers are notified and how their dependencies are respected.
+
+#### Termination Strategy:
+Similar to Task 1, a fixpoint analysis is used to identify when the notification dependency logic has stabilized, indicating that all observers are correctly notified and that their dependencies are respected.
 
 ## Progress Summary
 
