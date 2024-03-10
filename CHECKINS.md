@@ -124,7 +124,7 @@ Similar to Task 1, a fixpoint analysis is used to identify when the request prop
 
 ## Visitor
 
-### Task 1: Analysis of Control Flow (Meng)
+### Task 1: Analysis of Control Flow (Ricky)
 
 #### Goal:
 
@@ -150,7 +150,7 @@ Maps the abstract states to concrete sets of visitor-element interactions within
 
 Implement a fixpoint analysis where the analysis iterates until no new information is discovered in σ. This involves identifying when the addition of new paths or interactions does not change the overall understanding of visitor-element interactions, indicating that a stable state has been reached.
 
-### Task 2: Detection of Double Dispatch (Ricky)
+### Task 2: Detection of Double Dispatch (Meng)
 
 #### Goal:
 
@@ -178,7 +178,7 @@ Maps abstract states σ to concrete instances of double dispatch interactions, s
 
 Given the complexity of tracking double dispatch across potentially recursive visitor patterns or nested element structures, a termination strategy such as limiting the depth of call analysis or employing a heuristic to detect and avoid infinite recursion might be necessary.
 
-## Observer (Kai)
+## Observer (Kai: 1 of the 2 tasks below)
 
 ### Task 1: Analysis of Subject-Observable Relationship 
 #### Goal:
