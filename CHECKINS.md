@@ -1,6 +1,7 @@
 - [Check-in 1: Initial Ideas and Proposals](#check-in-1)
 - [Check-in 2: Ideas Refinement](#check-in-2)
 - [Planned Features / Tasks](#planned-features--tasks)
+- [Check-in 3: User Study and Mock up](#check-in-3)
 
 # Check-in 1:
 
@@ -251,3 +252,129 @@ NOTE: responsibilities are not concrete yet and may change as we progress.
   - Finalize implementations.
   - Finalize tests (maybe).
   - Plan for the creation and submission of a final video presentation.
+
+# Check-in 3:
+
+## Mock Up:
+**Original**: This program analysis provides suggestions of how code that implements a design pattern should be refactored. 
+
+**Mock**: The mock-up is a text editor that accepts code written in design patterns in Java and we added text-based suggestions to refactor the code.
+
+### One Example Input:
+The below code is written in Java using the Chain of Responsibility design pattern.
+```java
+import java.util.logging.Level;
+abstract class Logger {
+    private Logger nextLogger;
+
+    public void setNextLogger(Logger nextLogger) {
+        this.nextLogger = nextLogger;
+    }
+
+    public void logMessage(Level level, String message) {
+        if (this.getLevel().intValue() <= level.intValue()) {
+            write(message);
+        }
+        if (nextLogger != null) {
+            nextLogger.logMessage(level, message);
+        }
+    }
+
+    protected abstract Level getLevel();
+
+    protected abstract void write(String message);
+}
+
+class ConsoleLogger extends Logger {
+    @Override
+    protected Level getLevel() {
+        return Level.INFO;
+    }
+
+    @Override
+    protected void write(String message) {
+        System.out.println("Console Logger: " + message);
+    }
+}
+
+class FileLogger extends Logger {
+    @Override
+    protected Level getLevel() {
+        return Level.WARNING;
+    }
+
+    @Override
+    protected void write(String message) {
+        System.out.println("File Logger: " + message);
+    }
+}
+
+
+class ErrorLogger extends Logger {
+    @Override
+    protected Level getLevel() {
+        return Level.WARNING;
+    }
+
+    @Override
+    protected void write(String message) {
+        System.out.println("Error Logger: " + message);
+    }
+}
+
+public class ChainOfResponsibilityExample {
+    private static Logger getLoggerChain() {
+        Logger errorLogger = new ErrorLogger();
+        Logger fileLogger = new FileLogger();
+        Logger consoleLogger = new ConsoleLogger();
+
+        errorLogger.setNextLogger(fileLogger);
+        fileLogger.setNextLogger(consoleLogger);
+
+        return errorLogger;
+    }
+
+    public static void main(String[] args) {
+        Logger loggerChain = getLoggerChain();
+
+        loggerChain.logMessage(Level.INFO, "This is an INFO message.");
+        loggerChain.logMessage(Level.WARNING, "This is a DEBUG message.");
+        loggerChain.logMessage(Level.ALL, "This is an ERROR message.");
+    }
+}
+```
+
+### One Example Output:
+
+There were 2 handlers FileLogger and ErrorLogger, handling the same case, 'WARNING'. There was one case LEVEL.ALL that was not handled by any handler.
+
+## User Study 1:
+### User study idea:
+User was given simple source code that implements a design pattern. (Chain of Responsibility & Visitor patterns).
+Then, user was given the text suggestions (that our program analysis might give), and was asked to perform refactors based on the suggestions. 
+The quality of the code that the user produces determines how helpful the suggestions were. 
+
+**User 1 (current 310 student):**
+- Want an option to give hints before straight up answers/suggestions for users to learn
+- Prefer code suggestion for handlers and text suggestion for visitor
+- Would help if the text suggestion also includes some more details/logs such as info on the data/classes
+
+**User 2 (completed 210):**
+
+Task1:
+- The user was able to refactor task1 successfully using the text suggestions.
+- The suggestion saved a lot of time of reading the code and trying to understand what it does. It would be even more straightforward if the suggestions can point out the line where refactors can be done.
+
+Task2:
+- If suggestions include specialized software dev terminology (overloading), the user might not know what that means and need to look it up.
+- The order of refactors can be confusing since the suggestion included two things that needed refactoring, but it didn’t clarify whether the refactor should be performed in a specific order.
+- The wording wasn’t clear whether the suggestion is pointing out the bug or explaining the solution.
+- The refactor was not correct on the first try. 
+
+## Updated Design post User Study:
+- First: detect bug / dead code of handler.
+- Second: point out where the bug is, and more precise logging of information about the code.
+- Third: give possible suggestions of lines of code without refactoring the code.
+  - User study could help answer whether our refactor suggestions will be code modifications or just text-based suggestions that lead the user to the right answer.
+  - Maybe the tool can add a quick explanation of the design pattern used.
+  - Clearly outline the steps and their order to refactor the code. 
