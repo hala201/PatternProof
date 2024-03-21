@@ -11,6 +11,7 @@ node_modules/
 # production
 /build
 
+**.class
 # misc
 .DS_Store
 .env.local
@@ -28,7 +29,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-gradle/
 uploads/
 ### STS ###
 .apt_generated

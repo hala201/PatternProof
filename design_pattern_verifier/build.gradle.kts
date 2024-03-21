@@ -23,6 +23,7 @@ repositories {
 
 dependencies {
 	implementation("com.github.javaparser:javaparser-core-serialization:3.25.9")
+	implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.9")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
