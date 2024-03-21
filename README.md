@@ -13,6 +13,11 @@ git clone https://github.students.cs.ubc.ca/CPSC410-2023W-T2/Group2Project2.git
 cd Group2Project2
 ```
 
+First, install `concurrently` in root:
+```sh
+npm install
+```
+
 ## Backend Setup
 
 Navigate to the `design_pattern_verifier` directory:
@@ -68,6 +73,11 @@ From the project root, run:
 ```sh
 npm run start:both
 ```
+
+## Troubleshoot
+
+- Make sure you have `Gradle` installed. Then, if you still have issues, `cd` into `design_pattern_verifier` then do `graddle wrapper`.
+- Try opening 2 terminals and run the backend and frontend separately, if starting both from root doesn't work.
 
 ## Usage
 
