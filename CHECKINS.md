@@ -2,6 +2,7 @@
 - [Check-in 2: Ideas Refinement](#check-in-2)
 - [Planned Features / Tasks](#planned-features--tasks)
 - [Check-in 3: User Study and Mock up](#check-in-3)
+- [Check-in 4: Implementation Status](#check-in-4)
 
 # Check-in 1:
 
@@ -378,3 +379,29 @@ Task2:
   - User study could help answer whether our refactor suggestions will be code modifications or just text-based suggestions that lead the user to the right answer.
   - Maybe the tool can add a quick explanation of the design pattern used.
   - Clearly outline the steps and their order to refactor the code. 
+
+# Check-in 4:
+
+## Implementation Status
+
+### Chain of Responsibility
+
+- **Task 1**: Wrote unit tests, no tests are passing yet. Implemented dead handler analysis, needs more work still.
+- **Task 2**: No progress so far.
+
+### Visitor Pattern
+
+- **Task 1**: Completed a working version of the double dispatch analysis. The plan is to refine this further and possibly add tests.
+- **Task 2**: Integrated with double dispatch analysis and implemented naive control flow analyzer to find all used visitor types. Needs more testcases and possibly apply for more general cases
+
+### Observer Pattern
+
+- **Task 1**: No progress so far.
+
+## Plans for Final User Study
+
+- The approach for the final user study is still under consideration, but it will probably be something similar to the first user study (the output is unsure yet). Depending on how we progress in term of implementation, we may do it the end of check-in 5 or just before the final video.
+
+## Planned Timeline for Remaining Days
+
+- There's an adjustment in the project timeline to roughly complete the implementation by April 1st. Currently, we are a bit behind the goals outlined in Check-in 2.
