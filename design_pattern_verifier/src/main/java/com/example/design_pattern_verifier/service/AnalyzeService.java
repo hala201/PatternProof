@@ -12,12 +12,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.example.design_pattern_verifier.service.VisitorPattern.ControlFlowAnalyzer;
 import org.springframework.stereotype.Service;
 
 import com.example.design_pattern_verifier.service.VisitorPattern.ClassHierarchyExtractor;
 import com.example.design_pattern_verifier.service.VisitorPattern.DoubleDispatchAnalyzer;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodCallCollector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodInformationExtractor;
+import com.example.design_pattern_verifier.service.VisitorPattern.MethodVisitor;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -62,6 +64,7 @@ public class AnalyzeService {
         MethodCallCollector methodCallCollector = new MethodCallCollector();
         ClassHierarchyExtractor classHierarchyExtractor = new ClassHierarchyExtractor();
         MethodInformationExtractor methodInformationExtractor = new MethodInformationExtractor();
+        MethodVisitor methodVis = new MethodVisitor();
 
         compilationUnits.forEach(cu -> {
             cu.accept(classHierarchyExtractor, null);
@@ -84,7 +87,9 @@ public class AnalyzeService {
         );
         DDanalyzer.analyze();
 
-        // TBD: add other analyzer for visitor here, then combine/normalize outputs
+        compilationUnits.forEach(cu -> cu.accept(methodVis, null));
+        ControlFlowAnalyzer CFanalyzer = new ControlFlowAnalyzer(methodVis.getUsedTypes(), DDanalyzer.getVisType());
+        CFanalyzer.analyze();
     }
 
     private void logDoubleDispatch(Map<String, Set<String>> methodInfo, MethodCallCollector methodCallCollector) {

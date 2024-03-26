@@ -18,6 +18,8 @@ public class DoubleDispatchAnalyzer {
     private final Map<String, String> subclassToSuperclassMap;
     // map of identified double dispatches to avoid duplicate output and later uses
     private Set<String> identifiedDoubleDispatches = new HashSet<>();
+    // pass the complete visitor type for control flow analyzer
+    private Set<String> visitorType = new HashSet<>();
 
     public DoubleDispatchAnalyzer(Map<String, Set<String>> methodInformation,
                                   Map<String, Set<String>> potentialVisitors,
@@ -124,9 +126,11 @@ public class DoubleDispatchAnalyzer {
     private void adjustForInheritance() {
         Map<String, Set<String>> tempElements = new HashMap<>();
         Map<String, Set<String>> tempVisitors = new HashMap<>();
-
         System.out.println("Subclass to Superclass Map:");
-        this.subclassToSuperclassMap.forEach((k,v) -> { System.out.println(k + " -> " + v); });
+        this.subclassToSuperclassMap.forEach((k,v) -> {
+            this.visitorType.add(k);
+            System.out.println(k + " -> " + v);
+        });
 
         for (Map.Entry<String, Set<String>> entry : this.potentialElements.entrySet()) {
             String element = entry.getKey();
@@ -149,9 +153,14 @@ public class DoubleDispatchAnalyzer {
         }
 
         tempVisitors.forEach((key, value) -> this.potentialVisitors.computeIfAbsent(key, k -> new HashSet<>()).addAll(value));
+
     }
 
     public Set<String> getIdentifiedDoubleDispatches() {
         return this.identifiedDoubleDispatches;
+    }
+
+    public Set<String> getVisType() {
+        return this.visitorType;
     }
 }
