@@ -33,7 +33,7 @@ public class MethodInformationExtractor extends VoidVisitorAdapter<Void> {
      * @param method The MethodDeclaration object to extract the signature from.
      * @return The method signature as a string.
      */
-    private String extractMethodSignature(MethodDeclaration method) {
+    public String extractMethodSignature(MethodDeclaration method) {
         StringBuilder signatureBuilder = new StringBuilder(method.getNameAsString());
         signatureBuilder.append("(");
         method.getParameters().forEach(param -> {

@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.ChainExtractor;
+import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.HandlerChainAnalyzer;
 import com.example.design_pattern_verifier.service.VisitorPattern.ControlFlowAnalyzer;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,7 @@ public class AnalyzeService {
             parseResult.getResult().ifPresent(compilationUnits::add);
             
             this.processForVisitorPattern(compilationUnits, combinedSolver);
+            // this.processForChainOfResponsibility(compilationUnits);
             // TBD: call the 3 main analyzers here, then ccombine/normalize outputs
 
             Files.deleteIfExists(combinedFilePath);
@@ -138,5 +141,24 @@ public class AnalyzeService {
         Files.write(combinedFilePath, combinedClasses.toString().getBytes(), StandardOpenOption.APPEND);
 
         return combinedFilePath;
+    }
+
+    private void processForChainOfResponsibility(List<CompilationUnit> compilationUnits) {
+        ChainExtractor chainExtractor = new ChainExtractor();
+
+        compilationUnits.forEach(cu -> {
+            cu.accept(chainExtractor, null);
+        });
+
+        HandlerChainAnalyzer handlerChainAnalyzer = new HandlerChainAnalyzer(
+                chainExtractor.getHandlerHierarchy(),
+                chainExtractor.getBaseHandlers(),
+                chainExtractor.getChain(),
+                chainExtractor.getClients(),
+                chainExtractor.getBaseHandlerResponsibilities(),
+                chainExtractor.getChain().getConcreteHandlerResponsibilityMap());
+
+        handlerChainAnalyzer.analyze();
+
     }
 }
