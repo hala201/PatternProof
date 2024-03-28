@@ -18,7 +18,8 @@ import com.example.design_pattern_verifier.service.VisitorPattern.ControlFlowAna
 import org.springframework.stereotype.Service;
 
 import com.example.design_pattern_verifier.service.VisitorPattern.ClassHierarchyExtractor;
-import com.example.design_pattern_verifier.service.VisitorPattern.DoubleDispatchAnalyzer;
+import com.example.design_pattern_verifier.service.VisitorPattern.VisitorAnalyzer;
+import com.example.design_pattern_verifier.service.VisitorPattern.DoubleDispatchDetector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodCallCollector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodInformationExtractor;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodVisitor;
@@ -72,42 +73,23 @@ public class AnalyzeService {
         compilationUnits.forEach(cu -> {
             cu.accept(classHierarchyExtractor, null);
             cu.accept(methodCallCollector, null);
+            cu.accept(methodInformationExtractor, null);
+            cu.accept(methodVis, null);
         });
         methodCallCollector.finalizeMaps();
-
-        compilationUnits.forEach(cu -> cu.accept(methodInformationExtractor, null));
-
         Map<String, Set<String>> methodInfo = methodInformationExtractor.getMethodInformation();
+        Map<String, Set<String>> interactions = methodInformationExtractor.getInteractions();
+        Map<String, Set<String>> candidates = methodCallCollector.getCandidates();
+        Map<String, String> subclassToSuperclassMap = classHierarchyExtractor.getSubclassToSuperclassMap();
+
+        DoubleDispatchDetector Ddd = new DoubleDispatchDetector(candidates, subclassToSuperclassMap);
+        compilationUnits.forEach(cu -> cu.accept(Ddd, null));
         
-        this.logDoubleDispatch(methodInfo, methodCallCollector);
+        // ControlFlowAnalyzer CFanalyzer = new ControlFlowAnalyzer(methodVis.getUsedTypes(), DDanalyzer.getVisType());
+        // CFanalyzer.analyze();
 
-        DoubleDispatchAnalyzer DDanalyzer = new DoubleDispatchAnalyzer(
-                methodInfo,
-                methodCallCollector.getPotentialVisitors(),
-                methodCallCollector.getPotentialElements(),
-                methodCallCollector.getMethodCalls(),
-                classHierarchyExtractor.getSubclassToSuperclassMap()
-        );
-        DDanalyzer.analyze();
-
-        compilationUnits.forEach(cu -> cu.accept(methodVis, null));
-        ControlFlowAnalyzer CFanalyzer = new ControlFlowAnalyzer(methodVis.getUsedTypes(), DDanalyzer.getVisType());
-        CFanalyzer.analyze();
-    }
-
-    private void logDoubleDispatch(Map<String, Set<String>> methodInfo, MethodCallCollector methodCallCollector) {
-        // TBD: remove these logs
-        System.out.println("\nMethod Information:");
-        methodInfo.forEach((className, methods) -> {
-            System.out.println("Class: " + className);
-            methods.forEach(method -> System.out.println("  Method: " + method));
-        });
-
-        System.out.println("\nPotential Visitors and Elements:");
-        methodCallCollector.getPotentialVisitors().forEach((k, v) -> System.out.println("Visitor: " + k + " -> " + v));
-        methodCallCollector.getPotentialElements().forEach((k, v) -> System.out.println("Element: " + k + " -> " + v));
-        methodCallCollector.getMethodCalls().forEach((k, v) -> System.out.println("Method: " + k + " -> " + v));
-        //
+        VisitorAnalyzer Vanalyzer = new VisitorAnalyzer(candidates, Ddd.getElementToVisitorMappings(), subclassToSuperclassMap, methodInfo, interactions);
+        Vanalyzer.analyze();
     }
 
     private Path combineJavaFiles(Path directoryPath) throws IOException {
@@ -159,6 +141,5 @@ public class AnalyzeService {
                 chainExtractor.getChain().getConcreteHandlerResponsibilityMap());
 
         handlerChainAnalyzer.analyze();
-
     }
 }

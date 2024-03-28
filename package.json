@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "start": "cd design_pattern_verifier && ./gradlew bootRun",
-    "start:both": "concurrently \"cd design_pattern_verifier && ./gradlew bootRun\" \"cd frontend && npm start\""
+    "start:both": "concurrently \"cd design_pattern_verifier && ./gradlew bootRun\" \"cd frontend && npm start\"",
+    "test": "cd design_pattern_verifier && ./gradlew test"
   },
   "repository": {
     "type": "git",

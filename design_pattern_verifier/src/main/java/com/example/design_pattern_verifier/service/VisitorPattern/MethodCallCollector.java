@@ -10,13 +10,9 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 
-// TBD: collet types and fallback to it when method resolution fails
-// 1. for (IElement element : elements) => element is type IElement when element.accept(visitor) is invoked
-// 2. ((ElementA) element) => element is type ElementA
 
 public class MethodCallCollector extends VoidVisitorAdapter<Void> {
-    private Map<String, Set<String>> potentialVisitors = new HashMap<>();
-    private Map<String, Set<String>> potentialElements = new HashMap<>();
+    private Map<String, Set<String>> candidates = new HashMap<>();
     private Map<String, Map<String, Set<String>>> methodCalls = new HashMap<>();
 
     /**
@@ -43,42 +39,32 @@ public class MethodCallCollector extends VoidVisitorAdapter<Void> {
                         String argumentTypeNormalized = this.normalizeTypeName(argumentType);
 
                         if (resolvedMethod.getParam(0).getType().describe().equals(argumentType)) {
-                            this.potentialVisitors.computeIfAbsent(scopeTypeNormalized, k -> new HashSet<>()).add(argumentTypeNormalized);
-                            this.potentialElements.computeIfAbsent(argumentTypeNormalized, k -> new HashSet<>()).add(scopeTypeNormalized);
+                            this.candidates.computeIfAbsent(scopeTypeNormalized, k -> new HashSet<>()).add(argumentTypeNormalized);
+                            this.candidates.computeIfAbsent(argumentTypeNormalized, k -> new HashSet<>()).add(scopeTypeNormalized);
                         }
 
                         this.methodCalls.computeIfAbsent(scopeTypeNormalized, k -> new HashMap<>())
                                 .computeIfAbsent(methodName, k -> new HashSet<>())
                                 .add(argumentTypeNormalized);
                     } catch (Exception ex) {
-                        System.err.println("Failed to resolve scope type in method call: " + n);
+                        // System.err.println("Failed to resolve scope type in method call: " + n);
                     }
                 });
             } catch (Exception ex) {
-                System.err.println("Failed to resolve argument type in method call: " + n);
+                // System.err.println("Failed to resolve argument type in method call: " + n);
             }
         });
     }
 
     public void finalizeMaps() {
-        Map<String, Set<String>> filteredVisitors = this.potentialVisitors.entrySet().stream()
+        Map<String, Set<String>> filteredCandidates = this.candidates.entrySet().stream()
                 .filter(entry -> !entry.getKey().startsWith("java."))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        Map<String, Set<String>> filteredElements = this.potentialElements.entrySet().stream()
-                .filter(entry -> !entry.getKey().startsWith("java."))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        this.potentialElements = filteredElements;
-        this.potentialVisitors = filteredVisitors;
+        this.candidates = filteredCandidates;
     }
 
-    public Map<String, Set<String>> getPotentialVisitors() {
-        return this.potentialVisitors;
-    }
-
-    public Map<String, Set<String>> getPotentialElements() {
-        return this.potentialElements;
+    public Map<String, Set<String>> getCandidates() {
+        return this.candidates;
     }
 
     public Map<String, Map<String, Set<String>>> getMethodCalls() {
@@ -87,6 +73,11 @@ public class MethodCallCollector extends VoidVisitorAdapter<Void> {
 
     private String normalizeTypeName(String typeName) {
         int lastDotIndex = typeName.lastIndexOf('.');
-        return (lastDotIndex != -1) ? typeName.substring(lastDotIndex + 1) : typeName;
+        String simpleName = (lastDotIndex != -1) ? typeName.substring(lastDotIndex + 1) : typeName;
+        int genericStartIndex = simpleName.indexOf('<');
+        if (genericStartIndex != -1) {
+            simpleName = simpleName.substring(0, genericStartIndex);
+        }
+        return simpleName;
     }
 }
