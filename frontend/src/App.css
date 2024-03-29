@@ -1,38 +1,59 @@
 .App {
   text-align: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+input[type="file"],
+select,
+button {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  cursor: pointer;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+button {
+  background-color: #4caf50;
   color: white;
+  border: none;
 }
 
-.App-link {
-  color: #61dafb;
+button:hover {
+  background-color: #45a049;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.margin-horizontals {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.progress-bar {
+  background-color: #f3f3f3;
+  border-radius: 5px;
+  padding: 3px;
+  margin: 20px 0;
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.progress {
+  color: black;
+  background-color: #4caf50;
+  height: 20px;
+  border-radius: 3px;
+  text-align: center;
+  line-height: 20px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 20px;
+}
+
+.controls > div {
+  margin: 0 10px;
 }

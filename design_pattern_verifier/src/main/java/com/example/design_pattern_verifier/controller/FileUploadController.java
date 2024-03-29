@@ -18,14 +18,13 @@ import com.example.design_pattern_verifier.service.AnalyzeService;
 
 @RestController
 public class FileUploadController {
-
     private final Path root = Paths.get("uploads");
 
     @Autowired
     private AnalyzeService analyzeService;
 
     @PostMapping("/upload")
-    public ResponseEntity<?> handleFileUpload(@RequestParam("files") MultipartFile[] files) {
+    public ResponseEntity<?> handleFileUpload(@RequestParam("files") MultipartFile[] files, @RequestParam("pattern") String pattern) {
         if (files.length == 0) {
             return ResponseEntity.badRequest().body("No files provided!");
         }
@@ -49,14 +48,10 @@ public class FileUploadController {
                     return ResponseEntity.badRequest().body("Empty file in the request.");
                 }
             }
-            this.analyzeService.analyseSourceDirectory(sessionDir.toString());
-
-            return ResponseEntity.ok("Files uploaded and analysis completed successfully!");
-
+            return ResponseEntity.ok(this.analyzeService.analyseSourceDirectory(sessionDir.toString(), pattern));
         } catch (Exception e) {
             System.err.println("Upload failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload due to server error.");
         }
     }
 }
-

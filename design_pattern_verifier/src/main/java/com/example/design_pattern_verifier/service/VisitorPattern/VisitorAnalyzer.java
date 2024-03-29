@@ -141,6 +141,53 @@ public class VisitorAnalyzer {
             }
         });
     }
+
+    public String getFormattedAnalysisResults() {
+        StringBuilder formattedResults = new StringBuilder();
+    
+        this.logsMap.forEach((visitor, logs) -> {
+            formattedResults.append("For ").append(visitor).append(":\n");
+            
+            logs.stream().filter(log -> log.startsWith("<->")).forEach(log -> {
+                String doubleDispatchElements = log.substring(3);
+                formattedResults.append("\t- detects double dispatch with: ").append(doubleDispatchElements).append("\n");
+            });
+    
+            logs.stream().filter(log -> log.startsWith("uses")).forEach(log -> formattedResults.append("\t- ").append(log).append("\n"));
+    
+            logs.stream().filter(log -> log.startsWith("should handle all of")).forEach(log -> formattedResults.append("\t- ").append(log).append("\n"));
+    
+            logs.stream().filter(log -> !log.startsWith("<->") && !log.startsWith("uses") && !log.startsWith("should handle all of"))
+                .forEach(log -> formattedResults.append("\t- ").append(log).append("\n"));
+            
+            formattedResults.append("\n");
+            if (logs.contains("uses Single Method Visitor.") || logs.contains("uses Overloaded Methods.")) {
+                formattedResults.append("\nSuggestions for ").append(visitor).append(":\n");
+                logs.forEach(log -> {
+                    if (log.startsWith("does not adequately handle all element types. It doesn't interact with: ")) {
+                        String missingTypes = log.substring(log.indexOf(":") + 2);
+                        formattedResults.append("- It does not interact with or handle the following class(es): ").append(missingTypes).append("\n");
+                        formattedResults.append("Consider adding or refining visit methods to handle these element types explicitly.\n");
+                    }
+                });
+                
+                if (logs.contains("uses Single Method Visitor.")) {
+                    formattedResults.append("- It is currently using a Single Method Visitor strategy, which might limit the flexibility and extensibility of your visitor pattern implementation.\n");
+
+                    Set<String> allElementTypes = new HashSet<>();
+                    if (this.elementToVisitorMappings.containsKey(visitor)) {
+                        allElementTypes.addAll(this.elementToVisitorMappings.get(visitor));
+                    }
+                    allElementTypes.forEach(element -> {
+                        formattedResults.append("- Consider refactoring to include a specialized visit method for ").append(element).append(" to improve clarity and maintainability.\n");
+                    });
+                }
+                formattedResults.append("\n");
+            }
+        });
+    
+        return formattedResults.toString();
+    }
     
     private void verifyForOverloaded(Set<String> visitMethodParamTypes, Set<String> allElementTypes, String visitor) {
         if (visitMethodParamTypes.containsAll(allElementTypes)) {

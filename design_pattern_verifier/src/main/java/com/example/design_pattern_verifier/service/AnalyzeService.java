@@ -12,17 +12,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.ChainExtractor;
-import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.HandlerChainAnalyzer;
-import com.example.design_pattern_verifier.service.VisitorPattern.ControlFlowAnalyzer;
 import org.springframework.stereotype.Service;
 
+import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.ChainExtractor;
+import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.HandlerChainAnalyzer;
 import com.example.design_pattern_verifier.service.VisitorPattern.ClassHierarchyExtractor;
-import com.example.design_pattern_verifier.service.VisitorPattern.VisitorAnalyzer;
 import com.example.design_pattern_verifier.service.VisitorPattern.DoubleDispatchDetector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodCallCollector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodInformationExtractor;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodVisitor;
+import com.example.design_pattern_verifier.service.VisitorPattern.VisitorAnalyzer;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -36,7 +35,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 public class AnalyzeService {
     private static final String UPLOADS_PATH = "uploads";
 
-    public void analyseSourceDirectory(String directoryPath) {
+    public String analyseSourceDirectory(String directoryPath, String pattern) {
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver(
                 new ReflectionTypeSolver(),
                 new JavaParserTypeSolver(Paths.get(UPLOADS_PATH))
@@ -46,7 +45,7 @@ public class AnalyzeService {
                 .setSymbolResolver(new JavaSymbolSolver(combinedSolver));
 
         JavaParser javaParser = new JavaParser(parserConfiguration);
-
+        String result = "No results found.";
         try {
             Path combinedFilePath = this.combineJavaFiles(Paths.get(directoryPath));
 
@@ -54,17 +53,29 @@ public class AnalyzeService {
             List<CompilationUnit> compilationUnits = new ArrayList<>();
             parseResult.getResult().ifPresent(compilationUnits::add);
             
-            this.processForVisitorPattern(compilationUnits, combinedSolver);
-            // this.processForChainOfResponsibility(compilationUnits);
-            // TBD: call the 3 main analyzers here, then ccombine/normalize outputs
-
+            switch (pattern) {
+                case "visitor":
+                    String visitorResult = this.processForVisitorPattern(compilationUnits, combinedSolver);
+                    result = visitorResult.isEmpty() ? "No results found." : visitorResult;
+                    break;
+                case "chain":
+                    result = "not returning string yet";
+                    this.processForChainOfResponsibility(compilationUnits);
+                    break;
+                case "observer":
+                    result = "not implemented yet";
+                    break;
+                default:
+                    break;
+            }
             Files.deleteIfExists(combinedFilePath);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return result;
     }
 
-    private void processForVisitorPattern(List<CompilationUnit> compilationUnits, CombinedTypeSolver combinedSolver) {
+    private String processForVisitorPattern(List<CompilationUnit> compilationUnits, CombinedTypeSolver combinedSolver) {
         MethodCallCollector methodCallCollector = new MethodCallCollector();
         ClassHierarchyExtractor classHierarchyExtractor = new ClassHierarchyExtractor();
         MethodInformationExtractor methodInformationExtractor = new MethodInformationExtractor();
@@ -84,12 +95,10 @@ public class AnalyzeService {
 
         DoubleDispatchDetector Ddd = new DoubleDispatchDetector(candidates, subclassToSuperclassMap);
         compilationUnits.forEach(cu -> cu.accept(Ddd, null));
-        
-        // ControlFlowAnalyzer CFanalyzer = new ControlFlowAnalyzer(methodVis.getUsedTypes(), DDanalyzer.getVisType());
-        // CFanalyzer.analyze();
 
         VisitorAnalyzer Vanalyzer = new VisitorAnalyzer(candidates, Ddd.getElementToVisitorMappings(), subclassToSuperclassMap, methodInfo, interactions);
         Vanalyzer.analyze();
+        return Vanalyzer.getFormattedAnalysisResults();
     }
 
     private Path combineJavaFiles(Path directoryPath) throws IOException {

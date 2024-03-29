@@ -1,0 +1,49 @@
+.file-preview-container {
+  margin-top: 20px;
+  border: 2px solid #08315d;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.file-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+  border-bottom: #08315d 2px solid;
+}
+
+.file-item:hover {
+  background-color: #eef4ff;
+}
+
+.file-item .file-name {
+  font-weight: 500;
+}
+
+.file-item .file-remove {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 50%;
+  color: red;
+  font-weight: bold;
+}
+
+.file-preview-title {
+  font-size: 30px;
+  margin-bottom: 10px;
+  margin-top: 0px;
+}
