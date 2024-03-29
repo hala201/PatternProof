@@ -3,6 +3,7 @@
 - [Planned Features / Tasks](#planned-features--tasks)
 - [Check-in 3: User Study and Mock up](#check-in-3)
 - [Check-in 4: Implementation Status](#check-in-4)
+- [Check-in 5: Final Progress Status](#check-in-5)
 
 # Check-in 1:
 
@@ -87,41 +88,55 @@ This list is likely to expand as we progress and finalize the program design.
 ## Chain of Responsibility
 
 ### Task 1: Analysis of Handler Structure (Hala)
+
 #### Goal:
+
 To analyze the structure of handlers within the Chain of Responsibility pattern, identifying the sequence of handlers and their interactions in processing requests.
 
 #### Abstract States σ:
+
 A mapping from each request type to the sequence of handlers responsible for processing the request, including any branching or termination conditions within the chain.
 
 #### Error/Output Information E:
+
 A summary of the chain of responsibility for each request type, highlighting any gaps in handler coverage, redundant handlers, or potential bottlenecks in request processing.
 
 #### Analysis Function:
+
 analyse(σ, s) takes the current abstract state σ and a program statement s (including handler registrations, request processing logic, etc.). It updates σ based on the control flow implications of s for request handling, including the addition or removal of handlers, changes in the processing sequence, and any conditional branching based on request types.
 
 #### Concretisation Function:
+
 Maps the abstract states to concrete sequences of handlers within the program's request processing flow. This includes detailing which handlers are responsible for processing which types of requests, in what order, and under what conditions (e.g., based on request properties or the presence of other handlers in the chain).
 
 #### Termination Strategy:
+
 Implement a fixpoint analysis where the analysis iterates until no new information is discovered in σ. This involves identifying when the addition of new handlers or changes in the processing logic do not change the overall understanding of the handler chain for each request type, indicating a stable state.
 
 ### Task 2: Identification of Request Propagation (Dylan)
+
 #### Goal:
+
 To identify instances where a request propagates through the chain of handlers, ensuring that each handler correctly forwards the request to the next handler in the sequence.
 
 #### Abstract States σ:
+
 A mapping from each request type to the sequence of handlers responsible for processing the request, including information about how the request is propagated (e.g., by invoking a method on the next handler in the chain).
 
 #### Error/Output Information E:
+
 Identification of instances where requests are not correctly propagated through the chain, such as handlers failing to pass the request to the next handler, or handlers incorrectly processing requests intended for other handlers.
 
 #### Analysis Function:
+
 analyse(σ, s) examines interactions between handlers and requests within the code. When a handler processes a request, the function checks whether the request is correctly forwarded to the next handler in the sequence. The state σ is updated to reflect these interactions, marking instances where request propagation is incorrect or missing.
 
 #### Concretisation Function:
+
 Maps abstract states σ to concrete instances of request propagation within the handler chain, showing how different types of requests are processed and forwarded through the chain of handlers.
 
 #### Termination Strategy:
+
 Similar to Task 1, a fixpoint analysis is used to identify when the request propagation logic has stabilized, indicating that all requests are correctly processed and forwarded through the chain.
 
 ## Visitor
@@ -182,42 +197,56 @@ Given the complexity of tracking double dispatch across potentially recursive vi
 
 ## Observer (Kai: 1 of the 2 tasks below)
 
-### Task 1: Analysis of Subject-Observable Relationship 
+### Task 1: Analysis of Subject-Observable Relationship
+
 #### Goal:
+
 To analyze the relationship between subjects and observers in the Observer Pattern, identifying how state changes in subjects are communicated to observers.
 
 #### Abstract States σ:
+
 A mapping from each subject to the set of observers registered with that subject, along with the state of each observer (e.g., active, inactive, notified).
 
 #### Error/Output Information E:
+
 A summary of the subject-observer relationships, highlighting any inconsistencies or inefficiencies in the notification process, such as observers not being notified of state changes, observers being notified multiple times unnecessarily, or potential for optimization in the notification mechanism.
 
 #### Analysis Function:
+
 analyse(σ, s) takes the current abstract state σ and a program statement s (including observer registrations, state change notifications, etc.). It updates σ based on the control flow implications of s for observer notification, including the addition or removal of observers, changes in the notification sequence, and any conditional logic for notifying observers.
 
 #### Concretisation Function:
+
 Maps the abstract states to concrete relationships between subjects and observers within the program's state management flow. This includes detailing which observers are registered with which subjects, how observers are notified of state changes, and under what conditions (e.g., based on specific events or changes in subject state).
 
 #### Termination Strategy:
+
 Implement a fixpoint analysis where the analysis iterates until no new information is discovered in σ. This involves identifying when the addition of new observers or changes in the notification logic do not change the overall understanding of the subject-observer relationships, indicating a stable state.
 
 ### Task 2: Detection of Notification Dependencies
+
 #### Goal:
+
 To identify instances where observers depend on the notification order or timing, ensuring that observers are notified in a way that respects their dependencies.
 
 #### Abstract States σ:
+
 A mapping from each observer to the set of observers that it depends on, along with any constraints on the order or timing of notifications.
 
 #### Error/Output Information E:
+
 Identification of instances where notification dependencies are not correctly handled, such as observers not being notified in the correct order, observers being notified prematurely, or observers not being notified at all due to incorrect dependencies.
 
 #### Analysis Function:
+
 analyse(σ, s) examines interactions between observers within the code. When an observer is notified of a state change, the function checks whether the notification respects the dependencies of other observers. The state σ is updated to reflect these interactions, marking instances where notification dependencies are violated.
 
 #### Concretisation Function:
+
 Maps abstract states σ to concrete instances of notification dependencies between observers, showing how different observers are notified and how their dependencies are respected.
 
 #### Termination Strategy:
+
 Similar to Task 1, a fixpoint analysis is used to identify when the notification dependency logic has stabilized, indicating that all observers are correctly notified and that their dependencies are respected.
 
 ## Progress Summary
@@ -257,12 +286,15 @@ NOTE: responsibilities are not concrete yet and may change as we progress.
 # Check-in 3:
 
 ## Mock Up:
-**Original**: This program analysis provides suggestions of how code that implements a design pattern should be refactored. 
+
+**Original**: This program analysis provides suggestions of how code that implements a design pattern should be refactored.
 
 **Mock**: The mock-up is a text editor that accepts code written in design patterns in Java and we added text-based suggestions to refactor the code.
 
 ### One Example Input:
+
 The below code is written in Java using the Chain of Responsibility design pattern.
+
 ```java
 import java.util.logging.Level;
 abstract class Logger {
@@ -350,12 +382,15 @@ public class ChainOfResponsibilityExample {
 There were 2 handlers FileLogger and ErrorLogger, handling the same case, 'WARNING'. There was one case LEVEL.ALL that was not handled by any handler.
 
 ## User Study 1:
+
 ### User study idea:
+
 User was given simple source code that implements a design pattern. (Chain of Responsibility & Visitor patterns).
-Then, user was given the text suggestions (that our program analysis might give), and was asked to perform refactors based on the suggestions. 
-The quality of the code that the user produces determines how helpful the suggestions were. 
+Then, user was given the text suggestions (that our program analysis might give), and was asked to perform refactors based on the suggestions.
+The quality of the code that the user produces determines how helpful the suggestions were.
 
 **User 1 (current 310 student):**
+
 - Want an option to give hints before straight up answers/suggestions for users to learn
 - Prefer code suggestion for handlers and text suggestion for visitor
 - Would help if the text suggestion also includes some more details/logs such as info on the data/classes
@@ -363,22 +398,25 @@ The quality of the code that the user produces determines how helpful the sugges
 **User 2 (completed 210):**
 
 Task1:
+
 - The user was able to refactor task1 successfully using the text suggestions.
 - The suggestion saved a lot of time of reading the code and trying to understand what it does. It would be even more straightforward if the suggestions can point out the line where refactors can be done.
 
 Task2:
+
 - If suggestions include specialized software dev terminology (overloading), the user might not know what that means and need to look it up.
 - The order of refactors can be confusing since the suggestion included two things that needed refactoring, but it didn’t clarify whether the refactor should be performed in a specific order.
 - The wording wasn’t clear whether the suggestion is pointing out the bug or explaining the solution.
-- The refactor was not correct on the first try. 
+- The refactor was not correct on the first try.
 
 ## Updated Design post User Study:
+
 - First: detect bug / dead code of handler.
 - Second: point out where the bug is, and more precise logging of information about the code.
 - Third: give possible suggestions of lines of code without refactoring the code.
   - User study could help answer whether our refactor suggestions will be code modifications or just text-based suggestions that lead the user to the right answer.
   - Maybe the tool can add a quick explanation of the design pattern used.
-  - Clearly outline the steps and their order to refactor the code. 
+  - Clearly outline the steps and their order to refactor the code.
 
 # Check-in 4:
 
@@ -405,3 +443,22 @@ Task2:
 ## Planned Timeline for Remaining Days
 
 - There's an adjustment in the project timeline to roughly complete the implementation by April 1st. Currently, we are a bit behind the goals outlined in Check-in 2.
+
+# Check-in 5:
+
+## Progress Status
+
+- Since our implementataion status was a bit behind early in the week, we decided to push both the final user study and the final video to next week.
+- We plan on finishing enough of the implementation to have a working version for the final user study.
+- Timeline: we finish implementing by around March 31 - April 2, we will work on the final user study around April 2 - April 3, then we will finish the video by the end of that week and do any final touches.
+
+## Final User Study Plan:
+
+- Similar to our first user study, we will give user a simple source code (from `design_pattern_verifier/src/main/resources/static`) that implements a design pattern. (Chain of Responsibility & Visitor patterns). Then, our program analysis will give text suggestions, and the user will be asked to perform refactors based on the suggestions. The quality of the code that the user produces will determine how helpful the suggestions were.
+
+## Final Video Plan:
+
+- Zoom meeting where we present and share screen. Ideally, we each do a part of the presentation.
+- We will try to create a story/presentation that shows:
+  - what our analyzer can do and how it helps.
+  - target users
