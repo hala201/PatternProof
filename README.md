@@ -14,6 +14,7 @@ cd Group2Project2
 ```
 
 First, install `concurrently` in root:
+
 ```sh
 npm install
 ```
@@ -72,6 +73,14 @@ From the project root, run:
 
 ```sh
 npm run start:both
+```
+
+## Running the Tests
+
+Please ensure you have built everything and the program is runnable first. Then, to run the tests, navigate to the root and run:
+
+```sh
+npm run test
 ```
 
 ## Troubleshoot

@@ -20,7 +20,6 @@ import com.example.design_pattern_verifier.service.VisitorPattern.ClassHierarchy
 import com.example.design_pattern_verifier.service.VisitorPattern.DoubleDispatchDetector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodCallCollector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodInformationExtractor;
-import com.example.design_pattern_verifier.service.VisitorPattern.MethodVisitor;
 import com.example.design_pattern_verifier.service.VisitorPattern.VisitorAnalyzer;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -79,13 +78,11 @@ public class AnalyzeService {
         MethodCallCollector methodCallCollector = new MethodCallCollector();
         ClassHierarchyExtractor classHierarchyExtractor = new ClassHierarchyExtractor();
         MethodInformationExtractor methodInformationExtractor = new MethodInformationExtractor();
-        MethodVisitor methodVis = new MethodVisitor();
 
         compilationUnits.forEach(cu -> {
             cu.accept(classHierarchyExtractor, null);
             cu.accept(methodCallCollector, null);
             cu.accept(methodInformationExtractor, null);
-            cu.accept(methodVis, null);
         });
         methodCallCollector.finalizeMaps();
         Map<String, Set<String>> methodInfo = methodInformationExtractor.getMethodInformation();
