@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+
 import org.springframework.stereotype.Service;
 
 import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.ChainExtractor;
 import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.HandlerChainAnalyzer;
+import com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern.RequestPropagationAnalyzer;
 import com.example.design_pattern_verifier.service.VisitorPattern.ClassHierarchyExtractor;
 import com.example.design_pattern_verifier.service.VisitorPattern.DoubleDispatchDetector;
 import com.example.design_pattern_verifier.service.VisitorPattern.MethodCallCollector;
@@ -58,8 +60,8 @@ public class AnalyzeService {
                     result = visitorResult.isEmpty() ? "No results found." : visitorResult;
                     break;
                 case "chain":
-                    result = "not returning string yet";
-                    this.processForChainOfResponsibility(compilationUnits);
+                    String chainResult = this.processForChainOfResponsibility(compilationUnits);
+                    result = chainResult.isEmpty() ? "No results found." : chainResult;
                     break;
                 case "observer":
                     result = "not implemented yet";
@@ -131,12 +133,14 @@ public class AnalyzeService {
         return combinedFilePath;
     }
 
-    private void processForChainOfResponsibility(List<CompilationUnit> compilationUnits) {
+    private String processForChainOfResponsibility(List<CompilationUnit> compilationUnits) {
         ChainExtractor chainExtractor = new ChainExtractor();
 
         compilationUnits.forEach(cu -> {
             cu.accept(chainExtractor, null);
         });
+
+        StringBuilder chainResults = new StringBuilder();
 
         HandlerChainAnalyzer handlerChainAnalyzer = new HandlerChainAnalyzer(
                 chainExtractor.getHandlerHierarchy(),
@@ -147,5 +151,21 @@ public class AnalyzeService {
                 chainExtractor.getChain().getConcreteHandlerResponsibilityMap());
 
         handlerChainAnalyzer.analyze();
+
+        //chainResults.append(handlerChainAnalyzer)
+
+        RequestPropagationAnalyzer requestPropagationAnalyzer = new RequestPropagationAnalyzer(
+                chainExtractor.getHandlerHierarchy(),
+                chainExtractor.getBaseHandlers(),
+                chainExtractor.getChain(),
+                chainExtractor.getClients(),
+                chainExtractor.getRequestMethods(),
+                chainExtractor.isCircularChain());
+
+        requestPropagationAnalyzer.analyze();
+
+        chainResults.append(requestPropagationAnalyzer.getFormattedAnalysisResults());
+
+        return chainResults.toString();
     }
 }

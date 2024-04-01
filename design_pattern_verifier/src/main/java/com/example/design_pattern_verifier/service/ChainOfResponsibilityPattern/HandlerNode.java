@@ -8,7 +8,6 @@ import java.util.List;
  */
 public class HandlerNode {
     String handlerName;
-    HandlerNode prev;
     HandlerNode next;
 
     public void setResponsibilities(List<Responsibility> responsibilities) {

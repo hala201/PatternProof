@@ -29,7 +29,6 @@ public class Chain {
         }
         else {
             tail.next = temp;
-            temp.prev = tail;
         }
         tail = temp;
         handlerNames.add(handlerName);
