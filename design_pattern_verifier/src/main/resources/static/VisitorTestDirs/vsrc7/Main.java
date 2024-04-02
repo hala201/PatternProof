@@ -29,7 +29,7 @@ public class ElementC implements IElement {
         visitor.visit(this);
     }
 
-    public String exclusiveMethodOfElementB() {
+    public String exclusiveMethodOfElementC() {
         return "ElementC";
     }
 }
