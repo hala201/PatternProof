@@ -24,6 +24,16 @@ public class ElementB implements IElement {
     }
 }
 
+public class ElementC implements IElement {
+    public void accept(IVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    public String exclusiveMethodOfElementB() {
+        return "ElementC";
+    }
+}
+
 public interface IVisitor {
     void visit(IElement element);
 } 
@@ -40,7 +50,7 @@ public class ConcreteVisitor implements IVisitor {
 
 public class Main {
     public static void main(String[] args) {
-        IElement[] elements = {new ElementA(), new ElementB()};
+        IElement[] elements = {new ElementA(), new ElementB(), new ElementC()};
         IVisitor visitor = new ConcreteVisitor();
         for (IElement element : elements) {
             element.accept(visitor);
