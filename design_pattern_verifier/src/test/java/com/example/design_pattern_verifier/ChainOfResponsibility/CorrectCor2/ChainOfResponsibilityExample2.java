@@ -131,10 +131,8 @@ public class ChainOfResponsibilityExample2 {
         // Setting chain link
         chain50.setNextChain(chain20);
         chain20.setNextChain(chain10);
-        chain10.setNextChain(chain5);
-        chain5.setNextChain(chain1);
-
-        chain10 = new Dispense50();
+        chain10.setNextChain(chain1);
+        chain1.setNextChain(chain5);
     }
 
     public static void main(String[] args) {
