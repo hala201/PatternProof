@@ -1,9 +1,75 @@
+- [Final Documentation](#final-documentation)
 - [Check-in 1: Initial Ideas and Proposals](#check-in-1)
 - [Check-in 2: Ideas Refinement](#check-in-2)
 - [Planned Features / Tasks](#planned-features--tasks)
 - [Check-in 3: User Study and Mock up](#check-in-3)
 - [Check-in 4: Implementation Status](#check-in-4)
 - [Check-in 5: Final Progress Status](#check-in-5)
+
+# Final Documentation
+
+## Motivation
+
+Our program is a verification tool that aims to verify the usage of three specific design patterns in order to propose refactoring of unhandled cases (that could be bugs or lead to bugs) and propose suggestions on how to achieve a higher quality design patterns (e.g., better adherence to the design pattern, using Java's polymorphism, etc.). The three design patterns we are focusing on are Visitor, Chain of Responsibility, and Observer. Our target users are developers who are at least somewhat familiar with design patterns (either read about it, used it, or learnt about it).
+
+### Some Specific Use Cases
+
+1. Help developers to write more maintainable and readable code.
+2. Help developers to find potential subtle bugs.
+3. Help developers to understand more about the design patterns.
+
+## Design
+
+Our program is written in Java for backend and JavaScript with React for frontend. It is a static program analysis tool that is value-Agnostic. Since our goal is to understand the structure and the control flow of the code that has design patterns, we do not need to execute the code and we do not need to know the value of any data/variables. We use JavaParser to parse the Java code and collect [relevant states that are used later in analysis stage](#features). We use a fixpoint analysis that makes use of the collected states. Then, the analyzer will make decisions and provide suggestions to the user.
+
+### Features
+
+- _Visitor_: We statically examine the Java code to identify and analyze the use of the Visitor design pattern, focusing on class relationships, method signatures, and interactions that embody the pattern's structure and behavior. It accounts for control flow by analyzing method interactions—particularly the double dispatch mechanism intrinsic to the Visitor pattern—through mappings of candidate classes (class that dispatch/call each other), visitor-element associations, and inheritance hierarchies. By collecting detailed method information and tracking subclass-to-superclass relationships, the analyzer discerns how visitors (very likely) determine which _visit_ method to invoke on an element. The analyzer examines how methods are called and how different classes interact within the pattern. This approach allows us to suggest improvements and identify potential bugs without needing to execute the code.
+  - This specific feature fits the use cases such as by finding unhandled Elements that are not visited by any Visitor. It also suggests refactoring to use Java's language features such as polymorphism to handle the Element instead of using repetitive codes.
+
+### Trade-offs
+
+- _Visitor_: The Visitor Pattern Analyzer, through its static analysis approach, tends towards _over-approximation_ in evaluating the implementation of the Visitor design pattern within Java codebases. By broadly identifying candidates for pattern components, analyzing method interactions, and considering inheritance relationships without executing the code, the analyzer aims to ensure comprehensive coverage of potential pattern instances. However, this method inherently _risks including false positives_ by identifying non-relevant cases or suggesting refinements where none are needed. The broad capture of candidate classes and assumption-based analysis of interactions and method overloads can lead to the inclusion of more behaviors or paths than are actually present at runtime, necessitating a careful review of its findings against the specific execution context and design intentions. For instance, reflection or dynamically generated code can obscure the actual interactions between Visitors and Elements, leading to cases _where it identifies an Element as a Visitor_.
+
+## How-to(s) & Limitations
+
+We are using Spring Boot, Gradle, and React. We have included instructions on how to install, build, and run the application in the README file.
+
+### Limitations
+
+- We rely on the source code to be written in Java, because we rely on Java Parser to generate the AST.
+- We rely on the source code to not heavily use external libraries as we cannot generate AST from those nor do we know how those libraries work under the hood. (In this case, the analyzer will only analyze the available codes and ignore external libraries).
+- We rely on the source code to have at least the structure of the design patterns to be there.
+- We rely on what was taught to us as the "good" way to implement the design patterns.
+
+## User Studies
+
+We conducted user studiea to gather feedback on our design and implementation, specifically focusing on a tool designed to identify and suggest refinements for code implementing the Visitor and Chain of Responsibility design patterns. Our approach included mock-ups and scenarios used in the initial user study, followed by iterative refinements based on the feedback received, and culminating in a final user study with an operational version of our analyzer.
+
+**Initial User Study**: Conducted on March 13th, this study involved two participants familiar with the design patterns in question. They were provided with source code examples containing potential improvements or bugs and mock text-based suggestions similar to what our tool aimed to produce. Feedback highlighted the need for more detailed and clearer suggestions, prompting changes to our design to include additional details about relevant classes and the nature of suggested improvements.
+
+**Feedback and Iterative Refinements**:
+
+- Participants desired hints to foster learning rather than direct solutions.
+- Preferences emerged for code suggestions for handlers and descriptive text for visitors, including more context on data and classes involved.
+- The necessity for clarity in suggestions was underscored, particularly regarding the location for proposed refactors and the sequence of actions.
+- Users faced challenges with specialized terminology and ambiguous suggestions that did not clearly differentiate between identifying issues and offering solutions.
+- We updated what we output by returning more details such as information about relevant classes and potential source of bug or unhandled cases. We do this by collecting more states/informations about the relevant classes and methods to provide more detailed suggestions.
+
+**Final User Study**: Conducted on April 2nd, we conducted a study with the same target demographic, utilizing the refined output from our analyzer. This time, users interacted with the actual suggestions generated by our tool. The feedback was positive, indicating that our analyzer successfully assisted users in identifying and fixing code issues. Requests were made for more formatted suggestions. Despite some users not being familiar with certain patterns, the tool was generally found helpful, especially when suggestions were highlighted more clearly.
+
+**Feedback and Iterative Refinements**:
+
+- The UI was found to be simple to understand and use.
+- Even when not familiar with the design pattern, the analyzer's output was helpful enough to provide guidance for users to incorporate the refactor suggestions.
+- User wanted the suggestion for chain responsibility to be easier to read (it was "hard to tell what’s wrong").
+- We refine the output a bit more, making it easier to read. We achieved this simply through adding line breaks, enough spaces, and more importantly using combinations of bullet points and natural languages (instead of only bullet points of fragment sentences).
+
+The balance between providing enough detail for informed action and maintaining simplicity for user comprehension was a challenge. We have based our suggestions on what was taught in CPSC courses which doesn't align with every developer's usage of the same design pattern. Still, we try our best to reccommend what we think are maintainable and readable codes as well as pointed out sources of potential bugs.
+
+<sup><sub><sub>_END; Check-In(s) Below_</sub></sub></sup>
+
+---
 
 # Check-in 1:
 
