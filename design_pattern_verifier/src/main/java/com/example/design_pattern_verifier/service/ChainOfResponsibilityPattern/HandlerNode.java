@@ -9,16 +9,24 @@ import java.util.List;
 public class HandlerNode {
     String handlerName;
     HandlerNode next;
+    List<Responsibility> responsibilities;
+
+
+    public HandlerNode(String handlerName, List<Responsibility> responsibilities) {
+        this.handlerName = handlerName;
+        this.responsibilities = responsibilities;
+    }
+
+    public String getHandlerName() {
+        return handlerName;
+    }
 
     public void setResponsibilities(List<Responsibility> responsibilities) {
         this.responsibilities = responsibilities;
     }
 
-    List<Responsibility> responsibilities;
-
-    HandlerNode(String handlerName, List<Responsibility> responsibilities) {
-        this.handlerName = handlerName;
-        this.responsibilities = responsibilities;
+    public List<Responsibility> getResponsibilities() {
+        return this.responsibilities;
     }
 
 }
