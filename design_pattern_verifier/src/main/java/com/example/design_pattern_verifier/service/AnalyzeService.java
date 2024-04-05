@@ -148,7 +148,8 @@ public class AnalyzeService {
                 chainExtractor.getChain(),
                 chainExtractor.getClients(),
                 chainExtractor.getBaseHandlerResponsibilities(),
-                chainExtractor.getChain().getConcreteHandlerResponsibilityMap());
+                chainExtractor.getChain().getConcreteHandlerResponsibilityMap(),
+                chainExtractor.getChainObjects());
 
         handlerChainAnalyzer.analyze();
 

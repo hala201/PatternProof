@@ -13,16 +13,18 @@ public class HandlerChainAnalyzer {
     private final List<String> clients;
     private final Map<String, List<Responsibility>> responsibilitiesMap;
     private final Map<String, List<Responsibility>> concreteResponsibilitiesMap;
+    private final Map<String, String> chainObjects;
 
 
     public HandlerChainAnalyzer(
-            Map<String, String> handlerHierarchy, List<String> baseHandlers, Chain chain, List<String> clients, Map<String, List<Responsibility>> responsibilitiesMap, Map<String, List<Responsibility>> concreteResponsibilitiesMap) {
+            Map<String, String> handlerHierarchy, List<String> baseHandlers, Chain chain, List<String> clients, Map<String, List<Responsibility>> responsibilitiesMap, Map<String, List<Responsibility>> concreteResponsibilitiesMap, Map<String, String> chainObjects) {
         this.handlerHierarchy = handlerHierarchy;
         this.baseHandlers = baseHandlers;
         this.chain = chain;
         this.clients = clients;
         this.responsibilitiesMap = responsibilitiesMap;
         this.concreteResponsibilitiesMap = concreteResponsibilitiesMap;
+        this.chainObjects = chainObjects;
     }
 
     public void analyze() {
@@ -64,6 +66,12 @@ public class HandlerChainAnalyzer {
             System.out.println("->" + handler);
         }
         System.out.println("Handler hierarchy: " + handlerHierarchy);
+        for (String handler: handlerHierarchy.keySet()) {
+            if(!chainObjects.values().contains(handler)) {
+                System.out.println("Handler " + handler + " is redundant since it is declared but not used in the chain");
+            }
+        }
+
         System.out.println("Base Handler(s): " + baseHandlers);
         System.out.println("Client(s): " + clients);
         System.out.println("Responsibility: " + responsibilitiesMap);
@@ -71,7 +79,6 @@ public class HandlerChainAnalyzer {
 
     /**
      * Basic AST comparison catches if ASTs are identical
-     * TODO: (HALA) will improve to look through the control flow
      * @param r1
      * @param r2
      * @return

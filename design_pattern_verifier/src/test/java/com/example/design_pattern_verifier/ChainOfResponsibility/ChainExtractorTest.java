@@ -173,7 +173,7 @@ public class ChainExtractorTest {
 
     @Test
     public void ChainExtractorTest_IncorrectCor_UnhandledRequest() throws Exception {
-        ChainExtractor chainExtractor = getChainExtractor("static/ChainOfResponsibilityTestDirs/IncorrectCor_UnhandledRequest");
+        ChainExtractor chainExtractor = getChainExtractor("static/ChainOfResponsibilityTestDirs/IncorrectCor_RedundantHandler2");
 
         assertTrue(chainExtractor.getClients().contains("ChainOfResponsibilityExample"));
         assertTrue(chainExtractor.getBaseHandlers().contains("Logger"));
