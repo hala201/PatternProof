@@ -153,7 +153,7 @@ public class AnalyzeService {
 
         handlerChainAnalyzer.analyze();
 
-        //chainResults.append(handlerChainAnalyzer)
+        chainResults.append(handlerChainAnalyzer.getFormattedAnalysisResults());
 
         RequestPropagationAnalyzer requestPropagationAnalyzer = new RequestPropagationAnalyzer(
                 chainExtractor.getHandlerHierarchy(),
