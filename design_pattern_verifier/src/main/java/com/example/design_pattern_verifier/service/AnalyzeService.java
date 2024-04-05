@@ -157,7 +157,10 @@ public class AnalyzeService {
         RequestPropagationAnalyzer requestPropagationAnalyzer = new RequestPropagationAnalyzer(
                 chainExtractor.getHandlerHierarchy(),
                 chainExtractor.getBaseHandlers(),
+                chainExtractor.getBaseHandlerResponsibilities(),
                 chainExtractor.getChain(),
+                chainExtractor.getChainVariables(),
+                chainExtractor.getChainObjects(),
                 chainExtractor.getClients(),
                 chainExtractor.getRequestMethods(),
                 chainExtractor.isCircularChain());
