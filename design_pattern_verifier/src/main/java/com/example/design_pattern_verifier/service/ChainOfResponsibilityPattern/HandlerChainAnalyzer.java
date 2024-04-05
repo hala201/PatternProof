@@ -1,6 +1,8 @@
 package com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern;
 
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.*;
 
@@ -49,7 +51,7 @@ public class HandlerChainAnalyzer {
             for (int j = i+1; j < allResponsibilities.size(); j++) {
                 if (compareResponsibilities(allResponsibilities.get(i), allResponsibilities.get(j))){
                     System.out.println("Handlers " + parsedResponsibilities.get(allResponsibilities.get(i)) + " and "
-                            + parsedResponsibilities.get(allResponsibilities.get(i)) +
+                            + parsedResponsibilities.get(allResponsibilities.get(j)) +
                             " have at least one equal responsibility, refactor for redundancy");
                 }
             }
@@ -78,6 +80,24 @@ public class HandlerChainAnalyzer {
         BlockStmt ast1 = r1.getMethodBody();
         BlockStmt ast2 = r2.getMethodBody();
 
+        final boolean[] isSetNext = {false};
+        ast1.accept(new VoidVisitorAdapter<Void>() {
+            @Override
+            public void visit(AssignExpr n, Void arg) {
+                if (n.getOperator() == AssignExpr.Operator.ASSIGN){
+                    String target = n.getTarget().calculateResolvedType().asReferenceType().getQualifiedName();
+                    String value = n.getValue().calculateResolvedType().asReferenceType().getQualifiedName();
+                    if (isHandler(target) && isHandler(value)) {
+                        isSetNext[0] = true;
+                    }
+                }
+            }
+        }, null);
+        if (isSetNext[0]) return false;
         return ast1.equals(ast2);
+    }
+
+    public boolean isHandler(String name) {
+        return (baseHandlers.contains(name) || handlerHierarchy.containsKey(name));
     }
 }
