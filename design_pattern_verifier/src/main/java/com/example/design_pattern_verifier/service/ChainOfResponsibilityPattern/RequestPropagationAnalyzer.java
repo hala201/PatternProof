@@ -9,7 +9,12 @@ import java.util.*;
 public class RequestPropagationAnalyzer {
     private final Map<String, String> handlerHierarchy;
     private final List<String> baseHandlers;
+
+    private Map<String, List<Responsibility>> baseHandlerResponsibilities;
     private final Chain chain;
+
+    private final Map<String, String> chainVariables;
+    private final Map<String, String> chainObjects;
     private final List<String> clients;
     private final Set<String> requestMethods;
 
@@ -24,39 +29,51 @@ public class RequestPropagationAnalyzer {
     public RequestPropagationAnalyzer(
             Map<String, String> handlerHierarchy,
             List<String> baseHandlers,
+            Map<String, List<Responsibility>> baseHandlerResponsibilities,
             Chain chain,
+            Map<String, String> chainVariables,
+            Map<String, String> chainObjects,
             List<String> clients,
             Set<String> handlerMethods,
             boolean circularChain) {
         this.handlerHierarchy = handlerHierarchy;
         this.baseHandlers = baseHandlers;
+        this.baseHandlerResponsibilities = baseHandlerResponsibilities;
         this.chain = chain;
         this.clients = clients;
+        this.chainVariables = chainVariables;
+        this.chainObjects = chainObjects;
         this.requestMethods = handlerMethods;
         this.circularChain = circularChain;
 
     }
 
     public void analyze() {
-        result = new StringBuilder("Request Propagation Results: \n");
-        result.append("Requeset Methods: " + requestMethods + "\n");
+        result = new StringBuilder("Request Propagation Results for client: " + this.clients + "\n");
+        result.append("\t - client calls the following request methods: ").append(requestMethods).append("\n");
         if (circularChain) {
-            result.append("Chain is circular: possible endless loop \n");
+            result.append("\t - the created chain is circular which can result in an endless loop of requests. \n");
             System.out.println();
         } else {
             checkPropagation();
-            result.append("Handlers that can possibly propagate: " + canPropagate + "\n");
-            result.append("Handlers that cannot propagate: " + cannotPropagate + "\n");
+            if (!canPropagate.isEmpty()) {
+                result.append("\t - the following chain handlers have the ability to propagate requests to handlers down the chain: ").append(canPropagate).append("\n");
+            }
+            if (!cannotPropagate.isEmpty()) {
+                result.append("\t - the following chain handlers cannot propagate requests to the handlers down the chain: ").append(cannotPropagate).append("\n");
+                result.append("\nSuggestion: Ensure that implemented request methods in the following handlers can propagates to the next handler in chain.");
+                result.append("\nHandlers to investigate:\n");
+                for (String handler: cannotPropagate.keySet()) {
+                    result.append("\t - Handler of class type ").append(chainObjects.get(handler)).append(" with request method ").append(cannotPropagate.get(handler)).append("\n");
+                }
+            }
         }
     }
 
     private void checkPropagation() {
-
         for (String handler: chain.getHandlerNames()) {
-
-            List<Responsibility>  responsibilities = chain.getConcreteHandlerResponsibilityMap().get(handler);
             for (String request: requestMethods) {
-                BlockStmt block = findRequest(request, responsibilities);
+                BlockStmt block = findRequest(request, handler);
 
                 final Boolean[] canPropegate = {false};
                 if (block != null) {
@@ -78,13 +95,22 @@ public class RequestPropagationAnalyzer {
                 }
             }
         }
-
     }
 
-    private BlockStmt findRequest(String request, List<Responsibility> responsibilities) {
-        for (Responsibility responsibility: responsibilities) {
-            if (responsibility.getMethodName().equals(request)) {
-                return responsibility.getMethodBody();
+    private BlockStmt findRequest(String request, String handler) {
+        if ( chain.getConcreteHandlerResponsibilityMap().containsKey(handler)) {
+            for (Responsibility responsibility:  chain.getConcreteHandlerResponsibilityMap().get(handler)) {
+                if (responsibility.getMethodName().equals(request)) {
+                    return responsibility.getMethodBody();
+                }
+            }
+        }
+
+        if (baseHandlerResponsibilities.containsKey(handlerHierarchy.get(chainObjects.get(handler)))) {
+            for (Responsibility responsibility: baseHandlerResponsibilities.get(handlerHierarchy.get(chainObjects.get(handler)))) {
+                if (responsibility.getMethodName().equals(request)) {
+                    return responsibility.getMethodBody();
+                }
             }
         }
 

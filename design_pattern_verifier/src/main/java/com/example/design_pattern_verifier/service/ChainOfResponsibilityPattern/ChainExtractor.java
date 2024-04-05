@@ -94,6 +94,8 @@ public class ChainExtractor extends VoidVisitorAdapter<Void> {
         createChain();
 
         findRequestMethods();
+
+        //logChainExtractor();
     }
 
     private class ClientVisitor extends VoidVisitorAdapter<Void> {
@@ -121,7 +123,7 @@ public class ChainExtractor extends VoidVisitorAdapter<Void> {
                         if (n.getOperator() == AssignExpr.Operator.ASSIGN && n.getValue().isObjectCreationExpr()){
                             ObjectCreationExpr object = n.getValue().asObjectCreationExpr();
 
-                            chainObjects.put(n.getTarget().toString(), object.getTypeAsString());
+                            chainObjects.put(n.getTarget().toString().replace("this.", ""), object.getTypeAsString());
                         }
                         super.visit(n, arg);
                     }
@@ -176,15 +178,16 @@ public class ChainExtractor extends VoidVisitorAdapter<Void> {
     }
 
     public BlockStmt getResponsibilityBody(String handler, String method) {
-        if (baseHandlerResponsibilities.containsKey(handler)) {
-            for (Responsibility responsibility: baseHandlerResponsibilities.get(handler)) {
+        if (potentialHandlerNodes.containsKey(handler)) {
+            for (Responsibility responsibility: potentialHandlerNodes.get(handler)) {
                 if (responsibility.getMethodName().equals(method)) {
                     return responsibility.getMethodBody();
                 }
             }
         }
-        if (potentialHandlerNodes.containsKey(handler)) {
-            for (Responsibility responsibility: potentialHandlerNodes.get(handler)) {
+
+        if (baseHandlerResponsibilities.containsKey(handler)) {
+            for (Responsibility responsibility: baseHandlerResponsibilities.get(handler)) {
                 if (responsibility.getMethodName().equals(method)) {
                     return responsibility.getMethodBody();
                 }
@@ -255,17 +258,17 @@ public class ChainExtractor extends VoidVisitorAdapter<Void> {
             // Find creation of handler objects
             if (handlerHierarchy.containsKey(var.getTypeAsString()) ||
                     confirmedBaseHandlers.contains(var.getTypeAsString())) {
-                chainVariables.put(var.getNameAsString(), var.getTypeAsString());
+                chainVariables.put(var.getNameAsString().replace("this.", ""), var.getTypeAsString());
 
                 Optional<Expression> exp = var.getInitializer();
                 if (exp.isPresent() && exp.get().isObjectCreationExpr()) {
                     if (!chainObjects.containsKey(var.getNameAsString()) ||
                             (chainObjects.containsKey(var.getNameAsString()) &&
                                     chainObjects.get(var.getNameAsString()).equals("Empty"))) {
-                        chainObjects.put(var.getNameAsString(),
+                        chainObjects.put(var.getNameAsString().replace("this.", ""),
                                 exp.get().asObjectCreationExpr().getTypeAsString());
                     } else {
-                        chainObjects.put(var.getNameAsString(), "Empty");
+                        chainObjects.put(var.getNameAsString().replace("this.", ""), "Empty");
                     }
                 }
             }
@@ -305,6 +308,18 @@ public class ChainExtractor extends VoidVisitorAdapter<Void> {
         }
     }
 
+    public void logChainExtractor() {
+        System.out.println("Clients: " + clients);
+        System.out.println("Handler Hierarchy: " + handlerToHandler);
+        System.out.println("Base Handlers: " + baseHandlers);
+        System.out.println("Confirmed Base Handlers: " + confirmedBaseHandlers);
+        System.out.println("Base Handlers Responsibilities: " + baseHandlerResponsibilities);
+        System.out.println("Chain Variables: " + chainVariables);
+        System.out.println("Chain Objects: " + chainObjects);
+        System.out.println("Chain: " + chain.getHandlerNames());
+        System.out.println("Request Methods: " + requestMethods);
+    }
+
     public Map<String, List<Responsibility>> getBaseHandlerResponsibilities() {
         return baseHandlerResponsibilities;
     }
@@ -315,6 +330,10 @@ public class ChainExtractor extends VoidVisitorAdapter<Void> {
 
     public List<String> getBaseHandlers() {
         return baseHandlers;
+    }
+
+    public Set<String> getConfirmedBaseHandlers() {
+        return confirmedBaseHandlers;
     }
 
     public Chain getChain() {
