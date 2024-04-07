@@ -133,7 +133,7 @@ public class ChainExtractorTest {
         for (String han: handlers2) {
             assertTrue(chainExtractor.getChainObjects().containsValue(han));
         }
-        String[] chain = {"chain50", "chain20", "chain10", "chain1", "chain5"};
+        String[] chain = {"chain50", "chain20", "chain10", "chain5", "chain1"};
         assertArrayEquals(chainExtractor.getChain().getHandlerNames().toArray(), chain);
 
         assertTrue(chainExtractor.getRequestMethods().contains("dispense"));

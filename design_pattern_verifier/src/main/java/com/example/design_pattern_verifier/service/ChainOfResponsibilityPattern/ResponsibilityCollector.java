@@ -1,11 +1,7 @@
 package com.example.design_pattern_verifier.service.ChainOfResponsibilityPattern;
 
-import com.example.design_pattern_verifier.service.VisitorPattern.MethodInformationExtractor;
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.*;
 import java.util.stream.Collectors;

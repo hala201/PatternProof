@@ -1,13 +1,25 @@
 package com.example.design_pattern_verifier.ChainOfResponsibility.CorrectCor2;
 
-interface DispenseChain {
+abstract class DispenseChain {
+    abstract void setNextChain(DispenseChain next);
 
-    void setNextChain(DispenseChain next);
+    abstract void dispense(int c);
 
-    void dispense(int c);
+    void dispenseHelper(int c) {
+        if (c >= 10) {
+            int num = c / 10;
+            int remainder = c % 10;
+            System.out.println("Dispensing " + num + " 10$");
+            if (remainder != 0) {
+                this.next.dispense(remainder);
+            }
+        } else {
+            this.next.dispense(c);
+        }
+    }
 }
 
-class Dispense50 implements DispenseChain {
+class Dispense50 extends DispenseChain {
     private DispenseChain next;
 
     @Override
@@ -21,7 +33,7 @@ class Dispense50 implements DispenseChain {
             int num = c / 50;
             int remainder = c % 50;
             System.out.println("Dispensing " + num + " 50$");
-            if (remainder !=0) {
+            if (remainder != 0) {
                 this.next.dispense(remainder);
             }
         } else {
@@ -30,7 +42,7 @@ class Dispense50 implements DispenseChain {
     }
 }
 
-class Dispense20 implements DispenseChain {
+class Dispense20 extends DispenseChain {
     private DispenseChain next;
 
     @Override
@@ -44,7 +56,7 @@ class Dispense20 implements DispenseChain {
             int num = c / 20;
             int remainder = c % 20;
             System.out.println("Dispensing " + num + " 20$");
-            if (remainder !=0) {
+            if (remainder != 0) {
                 this.next.dispense(remainder);
             }
         } else {
@@ -53,30 +65,7 @@ class Dispense20 implements DispenseChain {
     }
 }
 
-class Dispense5 implements DispenseChain {
-    private DispenseChain next;
-
-    @Override
-    public void setNextChain(DispenseChain next) {
-        this.next = next;
-    }
-
-    @Override
-    public void dispense(int c) {
-        if (c >= 5) {
-            int num = c / 5;
-            int remainder = c % 5;
-            System.out.println("Dispensing " + num + " 5$");
-            if (remainder !=0) {
-                this.next.dispense(remainder);
-            }
-        } else {
-            this.next.dispense(c);
-        }
-    }
-}
-
-class Dispense10 implements DispenseChain {
+class Dispense10 extends DispenseChain {
     private DispenseChain next;
 
     @Override
@@ -90,7 +79,7 @@ class Dispense10 implements DispenseChain {
             int num = c / 10;
             int remainder = c % 10;
             System.out.println("Dispensing " + num + " 10$");
-            if (remainder !=0) {
+            if (remainder != 0) {
                 this.next.dispense(remainder);
             }
         } else {
@@ -99,7 +88,21 @@ class Dispense10 implements DispenseChain {
     }
 }
 
-class Dispense1 implements DispenseChain {
+class Dispense5 extends DispenseChain {
+    private DispenseChain next;
+
+    @Override
+    public void setNextChain(DispenseChain next) {
+        this.next = next;
+    }
+
+    @Override
+    public void dispense(int c) {
+        dispenseHelper(c);
+    }
+}
+
+class Dispense1 extends DispenseChain {
     private DispenseChain next;
 
     @Override
@@ -119,12 +122,12 @@ class Dispense1 implements DispenseChain {
 
 public class ChainOfResponsibilityExample2 {
     private DispenseChain chain50;
+
     public ChainOfResponsibilityExample2() {
         // Creating chain components
         chain50 = new Dispense50();
-        Dispense20 chain20;
-        chain20 = new Dispense20();
-        DispenseChain chain10 = new Dispense10();
+        Dispense20 chain20 = new Dispense20();
+        Dispense10 chain10 = new Dispense10();
         Dispense5 chain5 = new Dispense5();
         Dispense1 chain1 = new Dispense1();
 

@@ -76,7 +76,7 @@ public class HandlerChainAnalyzer {
 
                     result.append("\n ===> Redundancy Detected: \n The handlers " + parsedResponsibilities.get(allResponsibilities.get(i)) + " and "
                             + parsedResponsibilities.get(allResponsibilities.get(j)) +
-                            " have a redundancy in their responsibility + " + allResponsibilities.get(i) + "\n");
+                            " have a redundancy in their responsibility " + allResponsibilities.get(i) + "\n");
 
                     result.append("\n");
                 }
@@ -100,8 +100,12 @@ public class HandlerChainAnalyzer {
         }
         result.append("\n");
         result.append("\n Handler hierarchy (ConcreteHandlerClass=BaseHandlerClass): \n" + handlerHierarchy + "\n");
+        Map<String, String> bidirectionalChainObjects = new HashMap<>();
+        for(Map.Entry<String, String> entry : chainObjects.entrySet()){
+            bidirectionalChainObjects.put(entry.getValue(), entry.getKey());
+        }
         for (String handler: handlerHierarchy.keySet()) {
-            if(!chainObjects.values().contains(handler)) {
+            if(!(chain.getHandlerNames().contains(bidirectionalChainObjects.get(handler)))) {
                 result.append("\n ===> Redundancy Detected:Handler " + handler + " is redundant since it is implemented but not used in the chain\n");
             }
         }
