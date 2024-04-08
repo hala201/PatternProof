@@ -10,7 +10,7 @@
 
 ## Motivation
 
-Our program is a verification tool that aims to verify the usage of three specific design patterns in order to propose refactoring of unhandled cases (that could be bugs or lead to bugs) and propose suggestions on how to achieve a higher quality design patterns (e.g., better adherence to the design pattern, using Java's polymorphism, etc.). The three design patterns we are focusing on are Visitor, Chain of Responsibility, and Observer. Our target users are developers who are at least somewhat familiar with design patterns (either read about it, used it, or learnt about it).
+Our program is a verification tool that aims to verify the usage of two specific design patterns in order to propose refactoring of unhandled cases (that could be bugs or lead to bugs) and propose suggestions on how to achieve a higher quality design patterns (e.g., better adherence to the design pattern, using Java's polymorphism, etc.). The three design patterns we are focusing on are Visitor and Chain of Responsibility since these design patterns are heavily influenced by the Control Flow of the program. Our target users are developers who are at least somewhat familiar with design patterns (either read about it, used it, or learnt about it).
 
 ### Some Specific Use Cases
 
@@ -28,17 +28,31 @@ Our program is written in Java for backend and JavaScript with React for fronten
   - This specific feature fits the use cases such as by finding unhandled Elements that are not visited by any Visitor. It also suggests refactoring to use Java's language features such as polymorphism to handle the Element instead of using repetitive codes.
 
 
-- _Chain Of Responsibility_: We statically examine the java code to identify and analyze the use of the Chain of Responsibility pattern, focusing on finding overall class hierchy needed for the chain of responsibility, the client, base handlers, concrete handlers, a chain and requests. It accounts for control flow by analyzing variable and chain object creation taking into consideration the order of these calls, along with identifying requests that propagation through a created chain. With the collection of handler responsibility and tracking base and concrete handler relationships, the analyzer determines redundancy in responsibilities, extracts a created chain which is used to follow propagation starting from the head of the chain.
+- _Chain Of Responsibility_: We statically examine the java code to identify and analyze the use of the Chain of Responsibility pattern, focusing on finding overall class hierarchy needed for the chain of responsibility, the client, base handlers, concrete handlers, a chain and requests. It accounts for control flow by analyzing variable and chain object creation taking into consideration the order of these calls, along with identifying requests that propagation through a created chain. With the collection of handler responsibilities and tracking base and concrete handler relationships, the analyzer determines certain redundancies in handlers and their responsibilities, extracts a created chain which is used to follow propagation starting from the head of the chain.
+
+  - A **redundancy in handlers** is identified when there is a Concrete Handler declared without being used in the chain. 
+  - A **redundancy in responsibility** is identified if the AST of one responsibility is either identical or a subset of the AST of another handler's responsibility. This includes when the AST of a handler calls a helper covers the same functionality of the AST of another handler's responsibility (see `static/ChainOfResponsibilityTestDirs/IncorrectCor_RedundantHandler4/ChainOfResponsibilityExample.java`).
+  - Note that there are many other redundancies in handler functionality that our tool does not promise to support within the scope and timeframe of this project (See [limitations](#how-tos--limitations) and [trade-offs](#trade-offs)). Also note that our abstract states defined in check-in 2 have changed and evolved.
+
 ### Trade-offs
 
-- _Visitor_: The Visitor Pattern Analyzer, through its static analysis approach, tends towards _over-approximation_ in evaluating the implementation of the Visitor design pattern within Java codebases. By broadly identifying candidates for pattern components, analyzing method interactions, and considering inheritance relationships without executing the code, the analyzer aims to ensure comprehensive coverage of potential pattern instances. However, this method inherently _risks including false positives_ by identifying non-relevant cases or suggesting refinements where none are needed. The broad capture of candidate classes and assumption-based analysis of interactions and method overloads can lead to the inclusion of more behaviors or paths than are actually present at runtime, necessitating a careful review of its findings against the specific execution context and design intentions. For instance, reflection or dynamically generated code can obscure the actual interactions between Visitors and Elements, leading to cases _where it identifies an Element as a Visitor_.
+- _Visitor_: The Visitor Pattern Analyzer, through its static analysis approach, tends towards _over-approximation_ in evaluating the implementation of the Visitor design pattern within Java code bases. By broadly identifying candidates for pattern components, analyzing method interactions, and considering inheritance relationships without executing the code, the analyzer aims to ensure comprehensive coverage of potential pattern instances. However, this method inherently _risks including false positives_ by identifying non-relevant cases or suggesting refinements where none are needed. The broad capture of candidate classes and assumption-based analysis of interactions and method overloads can lead to the inclusion of more behaviors or paths than are actually present at runtime, necessitating a careful review of its findings against the specific execution context and design intentions. For instance, reflection or dynamically generated code can obscure the actual interactions between Visitors and Elements, leading to cases _where it identifies an Element as a Visitor_.
 
 
-- _Chain of Responsibility_: The Chain of Responsibility Analyzer, through its static analysis approach, tends towards optimistic detection of propagation validity while evaluating implementations of the Chain of responsibility pattern. The analyzer aims to provide a basic set refactoring suggestions for structure and propagation. However, it heavily requires multiple assumptions about the given code while analyzing structure for redundancy and request calls for propagation without needing to execute the code. 
-  - Assumptions:
-    - There is a singular chain of responsibility structure
-    - There is a singular client which uses the structure
-    - The client creates a singular chain
+- _Chain of Responsibility_: The Chain of Responsibility Analyzer, through its static analysis approach, tends towards optimistic detection of propagation validity while evaluating implementations of the Chain of responsibility pattern and to over-approximate redundancies in handlers. The analyzer aims to provide a basic set refactoring suggestions for structure of the chain and propagation of requests. However, it heavily requires multiple assumptions about the given code while analyzing structure for redundancy and request calls for propagation without needing to execute the code.
+    - Assumptions:
+        - The code follows the Chain of Responsibility, a Behavioural Design Pattern that characterizes the ways in which classes or objects interact and distribute responsibility. We followed the principles of implementation most commonly found in [literature](https://www.geeksforgeeks.org/chain-responsibility-design-pattern/) promising to only analyze programs that follow this strucutre. 
+        - There is a singular chain of responsibility structure
+        - There is a singular client which uses the structure
+        - The client creates a singular chain.
+        - Only one Base Handler, it is stored into a collection to allow for further development on the project to support multiple Base Handlers.
+        - Concrete Handlers extend/implement the Base Handler
+        - Methods in Concrete Handlers may call helpers from the Base Handler.
+        - SetNext call to set the next handler in the chain takes one argument.
+        - Handlers added to the cannotPropagate list are handlers which do not have request calls within their responsibility method, and they are not placed at the end of the chain. see resources/static/ChainOfResponsibilityTestDirs/IncorrectCor_PropagationFlaw1/ChainOfResponsibilityExample2.java
+        - If there is a circular chain propagation, tool will return empty chain.
+        - Names of handlers in the chain must be unique.
+      
 
 ## How-to(s) & Limitations
 
@@ -49,6 +63,7 @@ We are using Spring Boot, Gradle, and React. We have included instructions on ho
 - We rely on the source code to be written in Java, because we rely on Java Parser to generate the AST.
 - We rely on the source code to not heavily use external libraries as we cannot generate AST from those nor do we know how those libraries work under the hood. (In this case, the analyzer will only analyze the available codes and ignore external libraries).
 - We rely on the source code to have at least the structure of the design patterns to be there.
+- We rely on the source code to be compilable and not empty.
 - We rely on what was taught to us as the "good" way to implement the design patterns.
 
 ## User Studies
