@@ -23,7 +23,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ChainExtractorTest {
+public class ChainExtractorAndResponsibilityCollectorTest {
 
     private JavaParser javaParser;
 

@@ -29,6 +29,6 @@ public class Responsibility {
 
     @Override
     public String toString() {
-        return methodName + "(" + String.join(", ", parameters) + ")";
+        return methodName;
     }
 }

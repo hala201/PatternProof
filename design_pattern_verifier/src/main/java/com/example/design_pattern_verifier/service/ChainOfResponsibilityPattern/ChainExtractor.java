@@ -47,8 +47,6 @@ public class ChainExtractor extends VoidVisitorAdapter<Void> {
      * 1. Base Handler: an abstract class/interface that handlers extend/implement
      * 2. Handlers: extend/implement the base handler
      * 3. Client: the runnable class
-     *  TODO: (DYLAN) make sure that client is the one that makes requests
-     *  TODO: (DYLAN) make sure that the chain is reordered according to the sequence of requests
      * @param n
      * @param arg
      */
